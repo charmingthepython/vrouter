@@ -1,0 +1,52 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+!
+hostname IOX-XRv9000
+!
+ip cef
+no ip domain lookup
+ip domain name virl.info
+username cisco privilege 15 secret cisco
+ip route vrf Mgmt-intf 0.0.0.0 0.0.0.0 198.18.1.1
+crypto key generate rsa modulus 1024
+ip ssh server algorithm authentication password
+!
+vrf definition Mgmt-intf
+ !
+ address-family ipv4
+ exit-address-family
+!
+interface Loopback0
+ ip address 10.10.211.254 255.255.255.255
+ no shutdown
+!
+interface Gig0/0
+ description OOB Management
+ vrf forwarding Mgmt-intf
+ ip address 198.18.1.211 255.255.255.0
+ no shut
+!
+interface Gig0/1
+ ip address 10.10.211.2 255.255.255.252
+ no shutdown
+!
+no ip http server
+!
+ip route 0.0.0.0 0.0.0.0 10.10.211.1
+ip route vrf Mgmt-intf 0.0.0.0 0.0.0.0 198.18.1.1
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ exec-timeout 720 0
+ password cisco
+ login local
+ transport input telnet ssh
+!
+!
+end
